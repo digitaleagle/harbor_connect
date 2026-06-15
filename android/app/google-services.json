@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "969764953163",
+    "project_id": "harbor-connect-dev",
+    "storage_bucket": "harbor-connect-dev.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969764953163:android:53f868f7a3c59220ad81ce",
+        "android_client_info": {
+          "package_name": "com.example.lbc_harbor_connect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWgaKo7fDwm6v4bMTDDHo6QlB6aJ8jQ8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

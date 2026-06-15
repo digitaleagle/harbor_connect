@@ -1,0 +1,123 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+
+# Stephen added
+pubspec.lock
+
+# From Google AI search
+
+# -------------------------------------------------------------------------
+# Flutter & Dart Default Builds
+# -------------------------------------------------------------------------
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+# -------------------------------------------------------------------------
+# Firebase CLI & Local Emulator Caches
+# -------------------------------------------------------------------------
+.firebase/
+firebase-debug.log
+ui-debug.log
+
+# -------------------------------------------------------------------------
+# Android Specifics
+# -------------------------------------------------------------------------
+/android/.gradle/
+/android/local.properties
+/android/captures/
+/android/**/GeneratedPluginRegistrant.java
+/android/app/debug/
+/android/app/profile/
+/android/app/release/
+
+# -------------------------------------------------------------------------
+# iOS & macOS Specifics
+# -------------------------------------------------------------------------
+**/ios/.symlinks/
+**/ios/Pods/
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_assets/
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/*.mode1v3
+**/*.mode2v3
+**/*.moved-aside
+**/*.pbxuser
+**/*.perspectivev3
+**/*sync/
+**/DerivedData/
+xcuserdata/
+
+# -------------------------------------------------------------------------
+# Web Specifics
+# -------------------------------------------------------------------------
+lib/generated_plugin_registrant.dart
+
+# -------------------------------------------------------------------------
+# IDEs and Text Editors
+# -------------------------------------------------------------------------
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.history
+*.log
+
+# -------------------------------------------------------------------------
+# Operating Systems
+# -------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
