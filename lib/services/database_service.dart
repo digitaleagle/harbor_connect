@@ -158,7 +158,7 @@ class DatabaseService {
     return Role.fromJson(doc.data()!);
   }
 
-  // Save a service instance to 'scheduled-services'
+  // Save a service instance to 'services'
   Future<void> saveServiceInstance(ServiceInstance instance) async {
     try {
       await _db
@@ -168,6 +168,15 @@ class DatabaseService {
     } catch (e) {
       throw Exception('Database Write Failure: $e');
     }
+  }
+
+  // Stream all scheduled services
+  Stream<List<ServiceInstance>> getScheduledServices() {
+    return _db.collection('services').orderBy('date').snapshots().map((snapshot) {
+      return snapshot.docs
+          .map((doc) => ServiceInstance.fromJson(doc.data()))
+          .toList();
+    });
   }
 
 }
