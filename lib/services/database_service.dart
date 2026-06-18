@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lbc_harbor_connect/models/services_setup.dart';
 import '../models/user_profile.dart';
+import '../models/service.dart';
 
 final databaseServiceProvider = Provider((ref) => DatabaseService());
 
@@ -155,6 +156,18 @@ class DatabaseService {
     final doc = await _db.collection('roles').doc(guid).get();
     if (!doc.exists || doc.data() == null) return null;
     return Role.fromJson(doc.data()!);
+  }
+
+  // Save a service instance to 'scheduled-services'
+  Future<void> saveServiceInstance(ServiceInstance instance) async {
+    try {
+      await _db
+          .collection('services')
+          .doc(instance.guid)
+          .set(instance.toJson(), SetOptions(merge: true));
+    } catch (e) {
+      throw Exception('Database Write Failure: $e');
+    }
   }
 
 }

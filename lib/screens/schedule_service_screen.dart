@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lbc_harbor_connect/services/database_service.dart';
+import 'package:uuid/uuid.dart';
 import 'settings_screens.dart';
+import 'people_screens.dart';
 import '../models/services_setup.dart';
+import '../models/user_profile.dart';
+import '../models/service.dart';
 
 class ScheduleServiceScreen extends ConsumerStatefulWidget {
   const ScheduleServiceScreen({super.key});
@@ -15,6 +20,7 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
   int? _selectedYear;
   int? _selectedMonth;
   int? _selectedDay;
+  final Map<String, Member> _assignedMembers = {};
 
   final List<int> _years = [
     DateTime.now().year,
@@ -59,6 +65,113 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
     return matchingDays;
   }
 
+  DateTime _getNextAvailableDate(String dayName) {
+    int targetDay = _getDayOfWeekInt(dayName);
+    if (targetDay == 0) return DateTime.now();
+
+    DateTime now = DateTime.now();
+    // Start searching from tomorrow
+    DateTime date = DateTime(now.year, now.month, now.day).add(const Duration(days: 1));
+
+    while (date.weekday != targetDay) {
+      date = date.add(const Duration(days: 1));
+    }
+    return date;
+  }
+
+  Future<void> _saveSchedule() async {
+    if (_selectedServiceType == null ||
+        _selectedYear == null ||
+        _selectedMonth == null ||
+        _selectedDay == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please complete all selections before saving.")),
+      );
+      return;
+    }
+
+    final Map<String, String> assignments = _assignedMembers.map(
+      (posGuid, member) => MapEntry(posGuid, member.guid),
+    );
+
+    final serviceInstance = ServiceInstance(
+      guid: const Uuid().v4(),
+      serviceTypeGuid: _selectedServiceType!.guid,
+      date: DateTime(_selectedYear!, _selectedMonth!, _selectedDay!),
+      assignments: assignments,
+    );
+
+    try {
+      await ref.read(databaseServiceProvider).saveServiceInstance(serviceInstance);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Service scheduled successfully!")),
+        );
+        // Optionally reset or navigate back
+        setState(() {
+          _selectedServiceType = null;
+          _selectedYear = null;
+          _selectedMonth = null;
+          _selectedDay = null;
+          _assignedMembers.clear();
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error saving schedule: $e")),
+        );
+      }
+    }
+  }
+
+  void _showMemberSelectionDialog(Position position) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Consumer(
+          builder: (context, ref, child) {
+            final membersAsync = ref.watch(membersProvider);
+            return AlertDialog(
+              title: Text("Assign to ${position.positionName}"),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: membersAsync.when(
+                  data: (members) => members.isEmpty
+                      ? const Text("No members found.")
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: members.length,
+                          itemBuilder: (context, index) {
+                            final member = members[index];
+                            return ListTile(
+                              title: Text("${member.firstName} ${member.lastName}"),
+                              onTap: () {
+                                setState(() {
+                                  _assignedMembers[position.guid] = member;
+                                });
+                                Navigator.pop(context);
+                              },
+                            );
+                          },
+                        ),
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (err, stack) => Text("Error: $err"),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Cancel"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final serviceTypesAsync = ref.watch(serviceTypesProvider);
@@ -87,9 +200,17 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
                   onChanged: (ServiceType? newValue) {
                     setState(() {
                       _selectedServiceType = newValue;
-                      _selectedYear = null;
-                      _selectedMonth = null;
-                      _selectedDay = null;
+                      _assignedMembers.clear();
+                      if (newValue != null) {
+                        final nextDate = _getNextAvailableDate(newValue.dayOfTheWeek);
+                        _selectedYear = nextDate.year;
+                        _selectedMonth = nextDate.month;
+                        _selectedDay = nextDate.day;
+                      } else {
+                        _selectedYear = null;
+                        _selectedMonth = null;
+                        _selectedDay = null;
+                      }
                     });
                   },
                   decoration: const InputDecoration(
@@ -136,6 +257,7 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
                         setState(() {
                           _selectedYear = newValue;
                           _selectedDay = null; // Reset day when year changes
+                          _assignedMembers.clear();
                         });
                       },
                       decoration: const InputDecoration(
@@ -159,6 +281,7 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
                         setState(() {
                           _selectedMonth = newValue;
                           _selectedDay = null; // Reset day when month changes
+                          _assignedMembers.clear();
                         });
                       },
                       decoration: const InputDecoration(
@@ -181,6 +304,7 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
                       onChanged: (int? newValue) {
                         setState(() {
                           _selectedDay = newValue;
+                          _assignedMembers.clear();
                         });
                       },
                       decoration: const InputDecoration(
@@ -213,15 +337,19 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
                       itemCount: filteredPositions.length,
                       itemBuilder: (context, index) {
                         final pos = filteredPositions[index];
+                        final assignedMember = _assignedMembers[pos.guid];
+
                         return Card(
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           child: ListTile(
                             title: Text(pos.positionName),
-                            subtitle: Text("Team: ${pos.team}"),
-                            trailing: const Icon(Icons.person_add_outlined),
-                            onTap: () {
-                              // Future: Assign member to this position for this date
-                            },
+                            subtitle: Text(assignedMember != null
+                                ? "Assigned: ${assignedMember.firstName} ${assignedMember.lastName}"
+                                : "Team: ${pos.team}"),
+                            trailing: assignedMember != null
+                                ? const Icon(Icons.check_circle, color: Colors.green)
+                                : const Icon(Icons.person_add_outlined),
+                            onTap: () => _showMemberSelectionDialog(pos),
                           ),
                         );
                       },
@@ -235,6 +363,18 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
           ],
         ),
       ),
+      bottomNavigationBar: _selectedDay != null
+          ? Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                onPressed: _saveSchedule,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50),
+                ),
+                child: const Text("Save Schedule"),
+              ),
+            )
+          : null,
     );
   }
 }
