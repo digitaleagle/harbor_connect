@@ -1,16 +1,14 @@
-# lbc_harbor_connect
+# LBC Harbor Connect
 
-A new Flutter project.
+A collaboration hub for Landmark Baptist Church
 
-## Getting Started
+## Current Status
 
-This project is a starting point for a Flutter application.
+Currently, this is very much in progress. My current goal is to just get it ot the point 
+that I can save assignments for our Media Tech group for each service.
 
-A few resources to get you started if this is your first Flutter project:
+## Tools Used
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Flutter: The app is built in Flutter to make building for both web and Android much easier.
+    Flutter uses the Dart language.
+- Firebase: to store the data in the cloud so we can collaborate
