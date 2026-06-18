@@ -200,7 +200,7 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
             serviceTypesAsync.when(
               data: (serviceTypes) {
                 return DropdownButtonFormField<ServiceType>(
-                  value: _selectedServiceType,
+                  initialValue: _selectedServiceType,
                   hint: const Text("Select Service Type"),
                   items: serviceTypes.map((type) {
                     return DropdownMenuItem<ServiceType>(
@@ -257,7 +257,7 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
                   Expanded(
                     flex: 2,
                     child: DropdownButtonFormField<int>(
-                      value: _selectedYear,
+                      initialValue: _selectedYear,
                       hint: const Text("Year"),
                       items: _years.map((year) {
                         return DropdownMenuItem<int>(
@@ -282,7 +282,7 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
                   Expanded(
                     flex: 3,
                     child: DropdownButtonFormField<int>(
-                      value: _selectedMonth,
+                      initialValue: _selectedMonth,
                       hint: const Text("Month"),
                       items: List.generate(12, (index) {
                         return DropdownMenuItem<int>(
@@ -307,7 +307,7 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
                   Expanded(
                     flex: 2,
                     child: DropdownButtonFormField<int>(
-                      value: _selectedDay,
+                      initialValue: _selectedDay,
                       hint: const Text("Day"),
                       items: availableDays.map((day) {
                         return DropdownMenuItem<int>(

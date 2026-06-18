@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lbc_harbor_connect/services/database_service.dart';
 import 'package:uuid/uuid.dart';
-import '../config/app_router.dart';
 import '../models/services_setup.dart';
 
 class SettingsHomePage extends ConsumerStatefulWidget {
