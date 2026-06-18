@@ -21,6 +21,7 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
   int? _selectedMonth;
   int? _selectedDay;
   final Map<String, Member> _assignedMembers = {};
+  final ScrollController _scrollController = ScrollController();
 
   final List<int> _years = [
     DateTime.now().year,
@@ -173,6 +174,12 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final serviceTypesAsync = ref.watch(serviceTypesProvider);
     final positionsAsync = ref.watch(positionsProvider);
@@ -182,10 +189,14 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
       appBar: AppBar(
         title: const Text("Schedule Service"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
+      body: Scrollbar(
+        controller: _scrollController,
+        thumbVisibility: true,
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
             serviceTypesAsync.when(
               data: (serviceTypes) {
                 return DropdownButtonFormField<ServiceType>(
@@ -244,6 +255,7 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
               Row(
                 children: [
                   Expanded(
+                    flex: 2,
                     child: DropdownButtonFormField<int>(
                       value: _selectedYear,
                       hint: const Text("Year"),
@@ -268,6 +280,7 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
                   ),
                   const SizedBox(width: 8),
                   Expanded(
+                    flex: 3,
                     child: DropdownButtonFormField<int>(
                       value: _selectedMonth,
                       hint: const Text("Month"),
@@ -292,6 +305,7 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
                   ),
                   const SizedBox(width: 8),
                   Expanded(
+                    flex: 2,
                     child: DropdownButtonFormField<int>(
                       value: _selectedDay,
                       hint: const Text("Day"),
@@ -363,6 +377,7 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
           ],
         ),
       ),
+    ),
       bottomNavigationBar: _selectedDay != null
           ? Padding(
               padding: const EdgeInsets.all(16.0),
