@@ -57,18 +57,19 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCWgaKo7fDwm6v4bMTDDHo6QlB6aJ8jQ8U',
-    appId: '1:969764953163:android:53f868f7a3c59220ad81ce',
+    appId: '1:969764953163:android:c41f6b7bff6a199dad81ce',
     messagingSenderId: '969764953163',
     projectId: 'harbor-connect-dev',
     storageBucket: 'harbor-connect-dev.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAbpO5WLNDjl5SqH_f0HTkRe28F6c7b3sA',
-    appId: '1:969764953163:ios:d682883e356abc85ad81ce',
-    messagingSenderId: '969764953163',
-    projectId: 'harbor-connect-dev',
-    storageBucket: 'harbor-connect-dev.firebasestorage.app',
+    apiKey: 'AIzaSyDv-bWTXS5QR-kiULQSe6X26Jxv4ZN4LT0',
+    appId: '1:1003878953130:ios:f2fb03ee31bc53d4e260d3',
+    messagingSenderId: '1003878953130',
+    projectId: 'harbor-connect-prod',
+    storageBucket: 'harbor-connect-prod.firebasestorage.app',
+    iosClientId: '1003878953130-pg6g3o22vifmhqgtvhrk05cuh4hp3p8u.apps.googleusercontent.com',
     iosBundleId: 'com.example.lbcHarborConnect',
   );
 

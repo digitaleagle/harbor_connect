@@ -12,7 +12,20 @@
           "package_name": "com.example.lbc_harbor_connect"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "969764953163-3528kp5o49qlloio7b56isag1bs8fh79.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.lbc_harbor_connect",
+            "certificate_hash": "13f16f4387e6d0ea625d02ed71b508039229c4c1"
+          }
+        },
+        {
+          "client_id": "969764953163-es9eu9g69dp5jm40ppqoajalcmcb5m3s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCWgaKo7fDwm6v4bMTDDHo6QlB6aJ8jQ8U"
@@ -20,7 +33,63 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "969764953163-es9eu9g69dp5jm40ppqoajalcmcb5m3s.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "969764953163-t84d4hllrojr94hjgeolp8jkodns4u43.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.lbcHarborConnect"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969764953163:android:c41f6b7bff6a199dad81ce",
+        "android_client_info": {
+          "package_name": "net.digitaleagle.lbc.harbor_connect"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "969764953163-uql6b89t33n777e7njid2l71usuuabrn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "net.digitaleagle.lbc.harbor_connect",
+            "certificate_hash": "13f16f4387e6d0ea625d02ed71b508039229c4c1"
+          }
+        },
+        {
+          "client_id": "969764953163-es9eu9g69dp5jm40ppqoajalcmcb5m3s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWgaKo7fDwm6v4bMTDDHo6QlB6aJ8jQ8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "969764953163-es9eu9g69dp5jm40ppqoajalcmcb5m3s.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "969764953163-t84d4hllrojr94hjgeolp8jkodns4u43.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.lbcHarborConnect"
+              }
+            }
+          ]
         }
       }
     }

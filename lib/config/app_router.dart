@@ -119,7 +119,8 @@ class AuthNotifier extends Notifier<HarborUser?> {
 
       state = HarborUser(firebaseUser: FirebaseAuth.instance.currentUser); // Globally updates GoRouter configuration parameters
     } catch (e) {
-      state = HarborUser(firebaseUser: FirebaseAuth.instance.currentUser);
+      print("Failed $e");
+      state = null;
       rethrow;
     }
   }

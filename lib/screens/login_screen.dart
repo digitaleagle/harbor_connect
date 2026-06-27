@@ -19,6 +19,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _handleGoogleLogin() async {
     setState(() => _isLoading = true);
+    print("SkpTemp -- signing in with Google");
     try {
       await ref.read(authProvider.notifier).signInWithGoogle();
     } catch (e) {
