@@ -79,7 +79,7 @@ class AuthNotifier extends Notifier<HarborUser?> {
       }
 
       // 2. GET THE ID TOKEN (Lives directly on the account's authentication getter)
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
       final String? idToken = googleAuth.idToken;
 
       // 3. GET THE ACCESS TOKEN (Lives inside the separate authorization client)
