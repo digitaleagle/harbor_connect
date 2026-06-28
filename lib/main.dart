@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,6 +32,18 @@ void main() async {
     // options: options,
     options: DefaultFirebaseOptions.currentPlatform
   );
+  print("SkpTEmp -- ${DefaultFirebaseOptions.ios.iosClientId}");
+  print("SkpTEmp -- ${kIsWeb ? DefaultFirebaseOptions.ios.iosClientId : null}");
+  print("SkpTEmp -- ${DefaultFirebaseOptions.web.iosClientId}");
+  if(kIsWeb) {
+    var clientId = "969764953163-es9eu9g69dp5jm40ppqoajalcmcb5m3s.apps.googleusercontent.com";
+    if(DefaultFirebaseOptions.web.projectId == "harbor-connect-prod") {
+      clientId = "1003878953130-rpuuaup7v1bin2bvjp15cn5eom5amuil.apps.googleusercontent.com";
+    }
+    await GoogleSignIn.instance.initialize(
+      clientId: clientId
+    );
+  } else {
   // Explicitly supply the Web Client ID retrieved from your JSON file
   //  Note: I had concerns this was sensitive, but Google says not
   //        "Even if you don't commit it, anyone who downloads your app
@@ -40,6 +53,7 @@ void main() async {
     // serverClientId: '969764953163-es9eu9g69dp5jm40ppqoajalcmcb5m3s.apps.googleusercontent.com',
     // serverClientId: DefaultFirebaseOptions.ios.iosClientId,
   );
+  }
   runApp(
     const ProviderScope(
       child: MyApp(),
