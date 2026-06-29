@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../models/service.dart';
-import '../models/services_setup.dart';
 import '../services/database_service.dart';
 import 'settings_screens.dart';
 
@@ -39,6 +39,9 @@ class ScheduledServicesListScreen extends ConsumerWidget {
                 final typeName = typeMap[service.serviceTypeGuid] ?? "Unknown Type";
                 
                 return ListTile(
+                  onTap: () {
+                    context.push('/schedule', extra: service);
+                  },
                   leading: SizedBox(
                     width: 50,
                     child: Column(

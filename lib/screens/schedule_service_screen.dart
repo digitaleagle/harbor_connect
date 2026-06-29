@@ -9,7 +9,8 @@ import '../models/user_profile.dart';
 import '../models/service.dart';
 
 class ScheduleServiceScreen extends ConsumerStatefulWidget {
-  const ScheduleServiceScreen({super.key});
+  final ServiceInstance? serviceInstance;
+  const ScheduleServiceScreen({this.serviceInstance, super.key});
 
   @override
   ConsumerState<ScheduleServiceScreen> createState() => _ScheduleServiceScreenState();
@@ -22,6 +23,19 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
   int? _selectedDay;
   final Map<String, Member> _assignedMembers = {};
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.serviceInstance != null) {
+      _selectedYear = widget.serviceInstance!.date.year;
+      _selectedMonth = widget.serviceInstance!.date.month;
+      _selectedDay = widget.serviceInstance!.date.day;
+      // Note: We need to load _selectedServiceType and _assignedMembers,
+      // but those require data from providers which might not be ready yet.
+      // We'll handle that in didChangeDependencies or by watching providers in build.
+    }
+  }
 
   final List<int> _years = [
     DateTime.now().year,
@@ -96,7 +110,7 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
     );
 
     final serviceInstance = ServiceInstance(
-      guid: const Uuid().v4(),
+      guid: widget.serviceInstance?.guid ?? const Uuid().v4(),
       serviceTypeGuid: _selectedServiceType!.guid,
       date: DateTime(_selectedYear!, _selectedMonth!, _selectedDay!),
       assignments: assignments,
@@ -183,6 +197,29 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
   Widget build(BuildContext context) {
     final serviceTypesAsync = ref.watch(serviceTypesProvider);
     final positionsAsync = ref.watch(positionsProvider);
+    final membersAsync = ref.watch(membersProvider);
+
+    // Initial load from widget.serviceInstance if not already done
+    if (widget.serviceInstance != null && _selectedServiceType == null) {
+      serviceTypesAsync.whenData((types) {
+        final type = types.firstWhere((t) => t.guid == widget.serviceInstance!.serviceTypeGuid);
+        setState(() {
+          _selectedServiceType = type;
+        });
+      });
+
+      membersAsync.whenData((members) {
+        final Map<String, Member> newAssignments = {};
+        widget.serviceInstance!.assignments.forEach((posGuid, memberGuid) {
+          final member = members.firstWhere((m) => m.guid == memberGuid);
+          newAssignments[posGuid] = member;
+        });
+        setState(() {
+          _assignedMembers.addAll(newAssignments);
+        });
+      });
+    }
+
     final availableDays = _getAvailableDays();
 
     return Scaffold(
