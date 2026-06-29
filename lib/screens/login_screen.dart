@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../config/app_router.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+// Important: Import the web-specific utilities
+import 'package:google_sign_in_web/web_only.dart' as web_auth;
+
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -183,28 +189,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Outlined Google Authentication Button UI Component
-                OutlinedButton.icon(
-                  onPressed: _isLoading ? null : _handleGoogleLogin,
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(color: Colors.grey),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  // Render native icon layout directly inside your tree structure
-                  icon: Image.network(
-                    'https://wikimedia.org',
-                    height: 24,
-                    width: 24,
-                    errorBuilder: (context, error, stackTrace) => const Icon(Icons.g_mobiledata, size: 24),
-                  ),
-                  label: const Text(
-                    'Continue with Google',
-                    style: TextStyle(fontSize: 16, color: Colors.black87),
-                  ),
-                ),
+                // Our special sign in widget that handles both Web and Android
+                GoogleSignInWidget(handleGoogleLogin: _handleGoogleLogin, isLoading: _isLoading),
 
                 // Button to sign up with email and password
                 const SizedBox(height: 24),
@@ -230,5 +216,51 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         ),
       ),
     );
+  }
+}
+
+class GoogleSignInWidget extends StatefulWidget {
+  final bool isLoading;
+  final Function() handleGoogleLogin;
+  const GoogleSignInWidget({super.key, required bool this.isLoading, required Function() this.handleGoogleLogin});
+
+  @override
+  State<GoogleSignInWidget> createState() => _GoogleSignInWidgetState();
+}
+
+class _GoogleSignInWidgetState extends State<GoogleSignInWidget> {
+  // final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+  @override
+  Widget build(BuildContext context) {
+    if (kIsWeb) {
+      // Use the mandatory native button on Web
+      return web_auth.renderButton();
+    }
+
+    // You can keep your custom UI for Android/iOS mobile platforms
+    return
+      // Outlined Google Authentication Button UI Component
+      OutlinedButton.icon(
+        onPressed: widget.isLoading ? null : widget.handleGoogleLogin,
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          side: const BorderSide(color: Colors.grey),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        // Render native icon layout directly inside your tree structure
+        icon: Image.network(
+          'https://wikimedia.org',
+          height: 24,
+          width: 24,
+          errorBuilder: (context, error, stackTrace) => const Icon(Icons.g_mobiledata, size: 24),
+        ),
+        label: const Text(
+          'Continue with Google',
+          style: TextStyle(fontSize: 16, color: Colors.black87),
+        ),
+      );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:google_sign_in_platform_interface/google_sign_in_platform_interface.dart';
 import 'package:lbc_harbor_connect/models/user_profile.dart';
 import 'package:lbc_harbor_connect/models/services_setup.dart';
 import 'package:lbc_harbor_connect/screens/settings_screens.dart';
@@ -27,6 +28,25 @@ class AuthNotifier extends Notifier<HarborUser?> {
     // Keep it synced with the stream
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       state = HarborUser(firebaseUser: user);
+    });
+
+    // This is for the sign in button for the web. Things are a little different for the web
+    //    The AI said to put this on the login screen, but I think it might make better sense here
+    // Listen for login changes (triggered automatically when the web button is clicked)
+    GoogleSignIn.instance.authenticationEvents.listen((GoogleSignInAuthenticationEvent event) {
+      print("Event received: $event");
+      if (event is GoogleSignInAuthenticationEventSignIn) {
+        // Handle successful sign-in
+        var signInEvent = event as GoogleSignInAuthenticationEventSignIn;
+        final GoogleSignInAccount user = signInEvent.user;
+        finishGoogleSignin(user);
+        print("User logged in: ${user?.email}");
+      } else if (event is AuthenticationEventSignOut) {
+        // Handle sign-out
+        print("User logged out");
+      }
+    }).onError((error) {
+      // Handle authentication errors
     });
 
     // Synchronously return the current user state wrapped in HarborUser
@@ -79,31 +99,8 @@ class AuthNotifier extends Notifier<HarborUser?> {
         throw Exception('User canceled the Google Sign-In process.');
       }
 
-      // 2. GET THE ID TOKEN (Lives directly on the account's authentication getter)
-      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-      final String? idToken = googleAuth.idToken;
-
-      // 3. GET THE ACCESS TOKEN (Lives inside the separate authorization client)
-      const List<String> scopes = <String>['email', 'profile'];
-      final authClient = googleUser.authorizationClient;
-
-      GoogleSignInClientAuthorization? authorization =
-      await authClient.authorizationForScopes(scopes);
-
-      authorization ??= await authClient.authorizeScopes(scopes);
-      final String? accessToken = authorization.accessToken;
-
-      // 4. Validate before passing payload to Firebase
-      if (accessToken == null || idToken == null) {
-        throw Exception('Failed to retrieve full authentication tokens from Google.');
-      }
-
-      /* 5. Complete Handshake with Firebase Auth */
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: accessToken,
-        idToken: idToken,
-      );
-      var userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      // This was moved out to a separate method so that we could reuse it with the version from the web
+      var userCredential = await finishGoogleSignin(googleUser);
 
       // Create a user profile using the authenticated session metadata
       final userProfile = UserProfile(
@@ -114,16 +111,47 @@ class AuthNotifier extends Notifier<HarborUser?> {
         photoUrl: googleUser.photoUrl ?? '',
         createdAt: DateTime.now(),
       );
-
       // Read the service from the Riverpod container container and write the data
       await ref.read(databaseServiceProvider).saveUserProfile(userProfile);
 
-      state = HarborUser(firebaseUser: FirebaseAuth.instance.currentUser); // Globally updates GoRouter configuration parameters
     } catch (e) {
       print("Failed $e");
       state = null;
       rethrow;
     }
+  }
+
+
+  Future<UserCredential>  finishGoogleSignin(GoogleSignInAccount googleUser) async {
+    // 2. GET THE ID TOKEN (Lives directly on the account's authentication getter)
+    final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+    final String? idToken = googleAuth.idToken;
+
+    // 3. GET THE ACCESS TOKEN (Lives inside the separate authorization client)
+    const List<String> scopes = <String>['email', 'profile'];
+    final authClient = googleUser.authorizationClient;
+
+    GoogleSignInClientAuthorization? authorization =
+    await authClient.authorizationForScopes(scopes);
+
+    authorization ??= await authClient.authorizeScopes(scopes);
+    final String? accessToken = authorization.accessToken;
+
+    // 4. Validate before passing payload to Firebase
+    if (accessToken == null || idToken == null) {
+      throw Exception('Failed to retrieve full authentication tokens from Google.');
+    }
+
+    /* 5. Complete Handshake with Firebase Auth */
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: accessToken,
+      idToken: idToken,
+    );
+    var userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+
+    state = HarborUser(firebaseUser: FirebaseAuth.instance.currentUser); // Globally updates GoRouter configuration parameters
+
+    return userCredential;
   }
 
   void logout() => state = null;
