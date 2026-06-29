@@ -11,6 +11,7 @@ import 'package:lbc_harbor_connect/screens/schedule_service_screen.dart';
 import 'package:lbc_harbor_connect/screens/scheduled_services_list_screen.dart';
 import '../../screens/home_screen.dart';
 import '../../screens/people_screens.dart';
+import '../models/service.dart';
 import '../screens/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -148,7 +149,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     // 1. AUTHENTICATION GUARD
     redirect: (BuildContext context, GoRouterState state) {
       final HarborUser? user = ref.read(authProvider);
-      final bool isLoggedIn = user != null;
+      final bool isLoggedIn = user != null && user.firebaseUser != null;
       final bool isLoggingIn = state.matchedLocation == '/login';
 
       if (!isLoggedIn && !isLoggingIn) return '/login';
@@ -177,7 +178,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/schedule',
         builder: (BuildContext context, GoRouterState state) {
-          return const ScheduleServiceScreen();
+          final serviceInstance = state.extra as ServiceInstance?;
+          return ScheduleServiceScreen(serviceInstance: serviceInstance);
         },
       ),
       GoRoute(
