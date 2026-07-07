@@ -102,18 +102,6 @@ class AuthNotifier extends Notifier<HarborUser?> {
       // This was moved out to a separate method so that we could reuse it with the version from the web
       var userCredential = await finishGoogleSignin(googleUser);
 
-      // Create a user profile using the authenticated session metadata
-      final userProfile = UserProfile(
-        // uid: googleUser.id, // Or firebaseUser.uid if using FirebaseAuth
-        uid: userCredential.user!.uid,
-        email: googleUser.email,
-        displayName: googleUser.displayName ?? 'New User',
-        photoUrl: googleUser.photoUrl ?? '',
-        createdAt: DateTime.now(),
-      );
-      // Read the service from the Riverpod container container and write the data
-      await ref.read(databaseServiceProvider).saveUserProfile(userProfile);
-
     } catch (e) {
       print("Failed $e");
       state = null;
@@ -150,6 +138,19 @@ class AuthNotifier extends Notifier<HarborUser?> {
     var userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
 
     state = HarborUser(firebaseUser: FirebaseAuth.instance.currentUser); // Globally updates GoRouter configuration parameters
+
+    // Create a user profile using the authenticated session metadata
+    final userProfile = UserProfile(
+      // uid: googleUser.id, // Or firebaseUser.uid if using FirebaseAuth
+      uid: userCredential.user!.uid,
+      email: googleUser.email,
+      displayName: googleUser.displayName ?? 'New User',
+      photoUrl: googleUser.photoUrl ?? '',
+      createdAt: DateTime.now(),
+    );
+    // Read the service from the Riverpod container container and write the data
+    await ref.read(databaseServiceProvider).saveUserProfile(userProfile);
+
 
     return userCredential;
   }
