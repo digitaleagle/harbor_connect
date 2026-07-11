@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 // Important: Import the web-specific utilities
-import '../util/web_auth_stub.dart' if (kIsWeb) 'package:google_sign_in_web/web_only.dart' as web_auth;
+import '../util/web_auth_stub.dart' if (dart.library.html) 'package:google_sign_in_web/web_only.dart' as web_auth;
 
 
 class LoginScreen extends ConsumerStatefulWidget {
