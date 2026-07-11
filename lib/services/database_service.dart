@@ -158,6 +158,27 @@ class DatabaseService {
     return Role.fromJson(doc.data()!);
   }
 
+  // Save or overwrite a team inside the 'teams' collection
+  Future<void> saveTeam(Team team) async {
+    try {
+      await _db
+          .collection('teams')
+          .doc(team.guid)
+          .set(team.toJson(), SetOptions(merge: true));
+    } catch (e) {
+      throw Exception('Database Write Failure: $e');
+    }
+  }
+
+  // Stream all teams
+  Stream<List<Team>> getTeams() {
+    return _db.collection('teams').snapshots().map((snapshot) {
+      return snapshot.docs
+          .map((doc) => Team.fromJson(doc.data()))
+          .toList();
+    });
+  }
+
   // Save a service instance to 'services'
   Future<void> saveServiceInstance(ServiceInstance instance) async {
     try {

@@ -259,6 +259,19 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
+          GoRoute(
+            path: 'teams',
+            builder: (context, state) => const TeamsScreen(),
+            routes: [
+              GoRoute(
+                path: 'detail',
+                builder: (context, state) {
+                  final team = state.extra as Team?;
+                  return TeamDetailScreen(team: team);
+                },
+              ),
+            ],
+          ),
         ],
       ),
       ShellRoute(

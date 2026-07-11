@@ -112,3 +112,31 @@ class Role {
     };
   }
 }
+
+class Team {
+  final String guid;
+  final String name;
+  final String notes;
+
+  Team({
+    required this.guid,
+    required this.name,
+    this.notes = '',
+  });
+
+  factory Team.fromJson(Map<String, dynamic> json) {
+    return Team(
+      guid: json['guid'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      notes: json['notes'] as String? ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'guid': guid,
+      'name': name,
+      'notes': notes,
+    };
+  }
+}

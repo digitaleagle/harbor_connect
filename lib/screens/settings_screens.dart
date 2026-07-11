@@ -33,6 +33,9 @@ class _SettingsHomePageState extends ConsumerState<SettingsHomePage> {
             ElevatedButton(onPressed: () {
               context.push('/settings/roles');
             }, child: Text("Roles Setup")),
+            ElevatedButton(onPressed: () {
+              context.push('/settings/teams');
+            }, child: Text("Teams Setup")),
           ],
         ),
       ),
@@ -459,4 +462,121 @@ class _RoleDetailScreenState extends ConsumerState<RoleDetailScreen> {
 
 final rolesProvider = StreamProvider<List<Role>>((ref) {
   return ref.watch(databaseServiceProvider).getRoles();
+});
+
+class TeamsScreen extends ConsumerWidget {
+  const TeamsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final teamsAsync = ref.watch(teamsProvider);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Teams"),
+      ),
+      body: teamsAsync.when(
+        data: (teams) => teams.isEmpty
+            ? const Center(child: Text("No teams found. Tap + to add one."))
+            : ListView.builder(
+                itemCount: teams.length,
+                itemBuilder: (context, index) {
+                  final team = teams[index];
+                  return ListTile(
+                    title: Text(team.name),
+                    subtitle: Text(team.notes),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      context.push('/settings/teams/detail', extra: team);
+                    },
+                  );
+                },
+              ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(child: Text("Error: $err")),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          context.push('/settings/teams/detail');
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class TeamDetailScreen extends ConsumerStatefulWidget {
+  final Team? team;
+  const TeamDetailScreen({this.team, super.key});
+
+  @override
+  ConsumerState<TeamDetailScreen> createState() => _TeamDetailScreenState();
+}
+
+class _TeamDetailScreenState extends ConsumerState<TeamDetailScreen> {
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _nameController;
+  late TextEditingController _notesController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.team?.name ?? '');
+    _notesController = TextEditingController(text: widget.team?.notes ?? '');
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.team == null ? "Add Team" : "Edit Team"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(labelText: "Team Name"),
+                validator: (value) => value == null || value.isEmpty ? "Required" : null,
+              ),
+              TextFormField(
+                controller: _notesController,
+                decoration: const InputDecoration(labelText: "Notes"),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    final newTeam = Team(
+                      guid: widget.team?.guid ?? const Uuid().v4(),
+                      name: _nameController.text,
+                      notes: _notesController.text,
+                    );
+                    await ref.read(databaseServiceProvider).saveTeam(newTeam);
+                    if (context.mounted) context.pop();
+                  }
+                },
+                child: const Text("Save Team"),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+final teamsProvider = StreamProvider<List<Team>>((ref) {
+  return ref.watch(databaseServiceProvider).getTeams();
 });
