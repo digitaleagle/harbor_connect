@@ -242,7 +242,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: 'add',
-                builder: (context, state) => const AddPositionScreen(),
+                builder: (context, state) {
+                  final position = state.extra as Position?;
+                  return AddPositionScreen(position: position);
+                },
               ),
             ],
           ),

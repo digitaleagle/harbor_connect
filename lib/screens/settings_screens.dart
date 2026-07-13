@@ -250,6 +250,9 @@ class _PositionSetupScreenState extends ConsumerState<PositionSetupScreen> {
                     title: Text(position.positionName),
                     subtitle: Text("Team: ${position.team}"),
                     trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      context.push('/settings/positions/add', extra: position);
+                    },
                   );
                 },
               ),
@@ -267,7 +270,8 @@ class _PositionSetupScreenState extends ConsumerState<PositionSetupScreen> {
 }
 
 class AddPositionScreen extends ConsumerStatefulWidget {
-  const AddPositionScreen({super.key});
+  final Position? position;
+  const AddPositionScreen({this.position, super.key});
 
   @override
   ConsumerState<AddPositionScreen> createState() => _AddPositionScreenState();
@@ -275,8 +279,15 @@ class AddPositionScreen extends ConsumerStatefulWidget {
 
 class _AddPositionScreenState extends ConsumerState<AddPositionScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _teamController = TextEditingController();
+  late TextEditingController _nameController;
+  late TextEditingController _teamController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.position?.positionName ?? '');
+    _teamController = TextEditingController(text: widget.position?.team ?? '');
+  }
 
   @override
   void dispose() {
@@ -288,7 +299,7 @@ class _AddPositionScreenState extends ConsumerState<AddPositionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Add Position")),
+      appBar: AppBar(title: Text(widget.position == null ? "Add Position" : "Edit Position")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -310,7 +321,7 @@ class _AddPositionScreenState extends ConsumerState<AddPositionScreen> {
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     final newPosition = Position(
-                      guid: const Uuid().v4(),
+                      guid: widget.position?.guid ?? const Uuid().v4(),
                       positionName: _nameController.text,
                       team: _teamController.text,
                     );
