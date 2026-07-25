@@ -10,6 +10,7 @@ import 'package:riverpod/riverpod.dart';
 import 'package:lbc_harbor_connect/screens/profile_screen.dart';
 import 'package:lbc_harbor_connect/screens/schedule_service_screen.dart';
 import 'package:lbc_harbor_connect/screens/scheduled_services_list_screen.dart';
+import 'package:lbc_harbor_connect/screens/month_schedule_screen.dart';
 import '../../screens/home_screen.dart';
 import '../../screens/people_screens.dart';
 import '../models/service.dart';
@@ -215,6 +216,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/scheduled-list',
         builder: (BuildContext context, GoRouterState state) {
           return const ScheduledServicesListScreen();
+        },
+      ),
+      GoRoute(
+        path: '/month-schedule',
+        builder: (BuildContext context, GoRouterState state) {
+          return const MonthScheduleScreen();
         },
       ),
       GoRoute(
