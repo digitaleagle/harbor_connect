@@ -18,7 +18,7 @@ void main() async {
   //       flutter run --dart-define=APP_ENV=dev
   //   build with:
   //       flutter build appbundle --dart-define=APP_ENV=prod
-  const String env = String.fromEnvironment('APP_ENV', defaultValue: 'dev');
+  // const String env = String.fromEnvironment('APP_ENV', defaultValue: 'dev');
   // Select the appropriate FirebaseOptions configuration
   //   This was a good idea at first, but there's more to it. It doesn't help the google-services.json and the firebase.json
   // FirebaseOptions options;
@@ -28,31 +28,33 @@ void main() async {
   //   options = dev.DefaultFirebaseOptions.currentPlatform;
   // }
 
-  await Firebase.initializeApp(
-    // options: options,
-    options: DefaultFirebaseOptions.currentPlatform
-  );
-  print("SkpTEmp -- ${DefaultFirebaseOptions.ios.iosClientId}");
-  print("SkpTEmp -- ${kIsWeb ? DefaultFirebaseOptions.ios.iosClientId : null}");
-  print("SkpTEmp -- ${DefaultFirebaseOptions.web.iosClientId}");
-  if(kIsWeb) {
-    var clientId = "969764953163-es9eu9g69dp5jm40ppqoajalcmcb5m3s.apps.googleusercontent.com";
-    if(DefaultFirebaseOptions.web.projectId == "harbor-connect-prod") {
-      clientId = "1003878953130-rpuuaup7v1bin2bvjp15cn5eom5amuil.apps.googleusercontent.com";
-    }
-    await GoogleSignIn.instance.initialize(
-      clientId: clientId
+  try {
+    await Firebase.initializeApp(
+      // options: options,
+        options: DefaultFirebaseOptions.currentPlatform
     );
-  } else {
-  // Explicitly supply the Web Client ID retrieved from your JSON file
-  //  Note: I had concerns this was sensitive, but Google says not
-  //        "Even if you don't commit it, anyone who downloads your app
-  //        from the App Store or visits your website can easily extract
-  //        this ID by inspecting network traffic or decompiling the binary package."
-  await GoogleSignIn.instance.initialize(
-    // serverClientId: '969764953163-es9eu9g69dp5jm40ppqoajalcmcb5m3s.apps.googleusercontent.com',
-    // serverClientId: DefaultFirebaseOptions.ios.iosClientId,
-  );
+    if (kIsWeb) {
+      var clientId = "969764953163-es9eu9g69dp5jm40ppqoajalcmcb5m3s.apps.googleusercontent.com";
+      if (DefaultFirebaseOptions.web.projectId == "harbor-connect-prod") {
+        clientId =
+        "1003878953130-rpuuaup7v1bin2bvjp15cn5eom5amuil.apps.googleusercontent.com";
+      }
+      await GoogleSignIn.instance.initialize(
+          clientId: clientId
+      );
+    } else {
+      // Explicitly supply the Web Client ID retrieved from your JSON file
+      //  Note: I had concerns this was sensitive, but Google says not
+      //        "Even if you don't commit it, anyone who downloads your app
+      //        from the App Store or visits your website can easily extract
+      //        this ID by inspecting network traffic or decompiling the binary package."
+      await GoogleSignIn.instance.initialize(
+        // serverClientId: '969764953163-es9eu9g69dp5jm40ppqoajalcmcb5m3s.apps.googleusercontent.com',
+        // serverClientId: DefaultFirebaseOptions.ios.iosClientId,
+      );
+    }
+  } catch(e) {
+    print("Failed to initialize firebase and Google Sign-In: $e");
   }
   runApp(
     const ProviderScope(
