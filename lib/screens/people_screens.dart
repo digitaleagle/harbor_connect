@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lbc_harbor_connect/models/next_up_list.dart';
+import 'package:lbc_harbor_connect/screens/scheduled_services_list_screen.dart';
 import 'package:uuid/uuid.dart';
 import '../models/user_profile.dart';
 import '../models/services_setup.dart';
@@ -49,6 +51,39 @@ class PeopleSearchPage extends ConsumerWidget {
               ),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text("Error: $err")),
+      ),
+    );
+  }
+}
+
+class NextUpListScreen extends ConsumerWidget {
+  const NextUpListScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final membersAsync = ref.watch(membersProvider);
+    final scheduledServicesAsync = ref.watch(scheduledServicesProvider);
+
+    NextUpList list = NextUpList();
+    list.load(membersAsync, scheduledServicesAsync);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Next Up List"),
+      ),
+      body: list.isLoading ? const Center(child: CircularProgressIndicator()) : ListView.builder(
+        itemCount: list.list.length,
+        itemBuilder: (context, index) {
+          final item = list.list[index];
+          return ListTile(
+            title: Text('${item.member.firstName} ${item.member.lastName}'),
+            subtitle: Text(item.lastServedDate?.toString() ?? "Never Served"),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              context.push('/people/details', extra: item.member);
+            },
+          );
+        },
       ),
     );
   }

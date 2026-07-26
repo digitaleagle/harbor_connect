@@ -32,6 +32,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
               context.push('/month-schedule');
             }, child: Text("Month's Schedule")),
             ElevatedButton(onPressed: () {
+              context.push('/people/next-up');
+            }, child: Text("Next Up List")),
+            ElevatedButton(onPressed: () {
               context.push(
                 '/people/search',
                 //extra: UserDetail(id: '123', name: 'Alex', age: 28),

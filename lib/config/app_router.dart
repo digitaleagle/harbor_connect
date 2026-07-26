@@ -225,6 +225,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: '/people/next-up',
+        builder: (context, state) => const NextUpListScreen(),
+      ),
+      GoRoute(
         path: '/settings',
         builder: (BuildContext context, GoRouterState state) {
           return const SettingsHomePage();
