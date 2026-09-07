@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class ServiceInstance {
   final String guid;
   final String serviceTypeGuid;

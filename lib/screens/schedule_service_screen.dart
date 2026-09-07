@@ -109,12 +109,36 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
       (posGuid, member) => MapEntry(posGuid, member.guid),
     );
 
+    // parse the hour and minute out of the time string
+    //   this is all done to allow sorting the services by time when loading
+    RegExp regEx = RegExp(r'\d+(?=:)');
+    Iterable<RegExpMatch> matches = regEx.allMatches(_selectedServiceType!.serviceTime);
+    int hour = 0;
+    if(matches.isNotEmpty) {
+      hour = matches.first.group(0) != null ? int.parse(matches.first.group(0)!) : 0;
+    }
+    regEx = RegExp(r':\s*(\d+)');
+    matches = regEx.allMatches(_selectedServiceType!.serviceTime);
+    int minute = 0;
+    if(matches.isNotEmpty) {
+      minute = matches.first.group(1) != null ? int.parse(matches.first.group(1)!) : 0;
+    }
+    regEx = RegExp(r'[ap]$');
+    matches = regEx.allMatches(_selectedServiceType!.serviceTime);
+    if(matches.isNotEmpty) {
+      if(matches.first.group(0) != null && matches.first.group(0)! == "p") {
+        hour += 12;
+      }
+    }
+
     final serviceInstance = ServiceInstance(
       guid: widget.serviceInstance?.guid ?? const Uuid().v4(),
       serviceTypeGuid: _selectedServiceType!.guid,
-      date: DateTime(_selectedYear!, _selectedMonth!, _selectedDay!),
+      date: DateTime(_selectedYear!, _selectedMonth!, _selectedDay!, hour, minute),
       assignments: assignments,
     );
+
+    print("Service Instance: ${serviceInstance.date} -- ${serviceInstance.guid}");
 
     try {
       await ref.read(databaseServiceProvider).saveServiceInstance(serviceInstance);
