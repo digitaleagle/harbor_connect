@@ -46,6 +46,7 @@ class Member {
   final String? familyGuid;
   final String? userUid;
   final List<String> roleGuids;
+  final bool active;
 
   Member({
     required this.guid,
@@ -54,6 +55,7 @@ class Member {
     this.familyGuid,
     this.userUid,
     this.roleGuids = const [],
+    this.active = true,
   });
 
   factory Member.fromJson(Map<String, dynamic> json) {
@@ -67,6 +69,7 @@ class Member {
               ?.map((e) => e as String)
               .toList() ??
           [],
+      active: json['active'] as bool? ?? true,
     );
   }
 
@@ -78,6 +81,7 @@ class Member {
       'familyGuid': familyGuid,
       'userUid': userUid,
       'roleGuids': roleGuids,
+      'active': active,
     };
   }
 }

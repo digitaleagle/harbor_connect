@@ -19,6 +19,7 @@ class NextUpList {
     isLoading = false;
     var members = Map<String, Member>();
     for(var member in membersAsync.value!) {
+      if (!member.active) continue;
       members[member.guid] = member;
       var nextUpItem = NextUpItem(member);
       list.add(nextUpItem);
@@ -26,18 +27,12 @@ class NextUpList {
     };
     var services = scheduledServicesAsync.value;
     for(var service in services!) {
-      print(service.date);
       for(var assignment in service.assignments.entries) {
-        print("  - ${assignment.value}");
-        print("    > ${members[assignment.value]!.firstName} ${members[assignment.value]!.lastName}");
-        var nextUpItem = NextUpItem(members[assignment.value]!, lastServedDate: service.date, lastServedService: service);
+        final member = members[assignment.value];
+        if (member == null) continue;
+        var nextUpItem = NextUpItem(member, lastServedDate: service.date, lastServedService: service);
         add(nextUpItem);
       }
-    }
-
-    print("\n\nThe list");
-    for(var nextUpItem in list) {
-      print("${nextUpItem.member.firstName} ${nextUpItem.member.lastName} -- ${nextUpItem.lastServedDate}");
     }
   }
 

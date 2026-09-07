@@ -40,8 +40,19 @@ class PeopleSearchPage extends ConsumerWidget {
                 itemBuilder: (context, index) {
                   final member = members[index];
                   return ListTile(
-                    title: Text('${member.firstName} ${member.lastName}'),
-                    subtitle: Text(member.userUid ?? 'No User ID'),
+                    title: Text(
+                      '${member.firstName} ${member.lastName}',
+                      style: TextStyle(
+                        color: member.active ? null : Colors.grey,
+                        decoration: member.active ? null : TextDecoration.lineThrough,
+                      ),
+                    ),
+                    subtitle: Text(
+                      member.userUid ?? 'No User ID',
+                      style: TextStyle(
+                        color: member.active ? null : Colors.grey.shade400,
+                      ),
+                    ),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
                       context.push('/people/details', extra: member);
@@ -221,6 +232,7 @@ class _MemberDetailsScreenState extends ConsumerState<MemberDetailsScreen> {
   late TextEditingController _familyGuidController;
   late TextEditingController _userUidController;
   List<String> _selectedRoleGuids = [];
+  bool _isActive = true;
 
   @override
   void initState() {
@@ -230,6 +242,7 @@ class _MemberDetailsScreenState extends ConsumerState<MemberDetailsScreen> {
     _familyGuidController = TextEditingController(text: widget.member?.familyGuid ?? '');
     _userUidController = TextEditingController(text: widget.member?.userUid ?? '');
     _selectedRoleGuids = List.from(widget.member?.roleGuids ?? []);
+    _isActive = widget.member?.active ?? true;
   }
 
   @override
@@ -241,6 +254,7 @@ class _MemberDetailsScreenState extends ConsumerState<MemberDetailsScreen> {
       _familyGuidController.text = widget.member?.familyGuid ?? '';
       _userUidController.text = widget.member?.userUid ?? '';
       _selectedRoleGuids = List.from(widget.member?.roleGuids ?? []);
+      _isActive = widget.member?.active ?? true;
     }
   }
 
@@ -262,6 +276,7 @@ class _MemberDetailsScreenState extends ConsumerState<MemberDetailsScreen> {
         familyGuid: _familyGuidController.text.trim().isEmpty ? null : _familyGuidController.text.trim(),
         userUid: _userUidController.text.trim().isEmpty ? null : _userUidController.text.trim(),
         roleGuids: _selectedRoleGuids,
+        active: _isActive,
       );
 
       try {
@@ -319,6 +334,16 @@ class _MemberDetailsScreenState extends ConsumerState<MemberDetailsScreen> {
               TextFormField(
                 controller: _userUidController,
                 decoration: const InputDecoration(labelText: 'User UID (Optional)'),
+              ),
+              const SizedBox(height: 16),
+              SwitchListTile(
+                title: const Text('Active'),
+                value: _isActive,
+                onChanged: (bool value) {
+                  setState(() {
+                    _isActive = value;
+                  });
+                },
               ),
               const SizedBox(height: 24),
               const Align(
