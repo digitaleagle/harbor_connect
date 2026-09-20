@@ -68,7 +68,8 @@ class PeopleSearchPage extends ConsumerWidget {
 }
 
 class NextUpListScreen extends ConsumerWidget {
-  const NextUpListScreen({super.key});
+  final bool isDialog;
+  const NextUpListScreen({this.isDialog = false, super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -78,24 +79,35 @@ class NextUpListScreen extends ConsumerWidget {
     NextUpList list = NextUpList();
     list.load(membersAsync, scheduledServicesAsync);
 
+    final content = list.isLoading ? const Center(child: CircularProgressIndicator()) : ListView.builder(
+      shrinkWrap: isDialog,
+      itemCount: list.list.length,
+      itemBuilder: (context, index) {
+        final item = list.list[index];
+        return ListTile(
+          title: Text('${item.member.firstName} ${item.member.lastName}'),
+          subtitle: Text(item.lastServedDate?.toString() ?? "Never Served"),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () {
+            if (isDialog) {
+              Navigator.pop(context, item.member);
+            } else {
+              context.push('/people/details', extra: item.member);
+            }
+          },
+        );
+      },
+    );
+
+    if (isDialog) {
+      return content;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Next Up List"),
       ),
-      body: list.isLoading ? const Center(child: CircularProgressIndicator()) : ListView.builder(
-        itemCount: list.list.length,
-        itemBuilder: (context, index) {
-          final item = list.list[index];
-          return ListTile(
-            title: Text('${item.member.firstName} ${item.member.lastName}'),
-            subtitle: Text(item.lastServedDate?.toString() ?? "Never Served"),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              context.push('/people/details', extra: item.member);
-            },
-          );
-        },
-      ),
+      body: content,
     );
   }
 }

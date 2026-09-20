@@ -165,50 +165,30 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
   }
 
   void _showMemberSelectionDialog(Position position) {
-    showDialog(
+    showDialog<Member>(
       context: context,
       builder: (context) {
-        return Consumer(
-          builder: (context, ref, child) {
-            final membersAsync = ref.watch(membersProvider);
-            return AlertDialog(
-              title: Text("Assign to ${position.positionName}"),
-              content: SizedBox(
-                width: double.maxFinite,
-                child: membersAsync.when(
-                  data: (members) => members.isEmpty
-                      ? const Text("No members found.")
-                      : ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: members.length,
-                          itemBuilder: (context, index) {
-                            final member = members[index];
-                            return ListTile(
-                              title: Text("${member.firstName} ${member.lastName}"),
-                              onTap: () {
-                                setState(() {
-                                  _assignedMembers[position.guid] = member;
-                                });
-                                Navigator.pop(context);
-                              },
-                            );
-                          },
-                        ),
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (err, stack) => Text("Error: $err"),
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text("Cancel"),
-                ),
-              ],
-            );
-          },
+        return AlertDialog(
+          title: Text("Assign to ${position.positionName}"),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: const NextUpListScreen(isDialog: true),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancel"),
+            ),
+          ],
         );
       },
-    );
+    ).then((selectedMember) {
+      if (selectedMember != null) {
+        setState(() {
+          _assignedMembers[position.guid] = selectedMember;
+        });
+      }
+    });
   }
 
   @override
