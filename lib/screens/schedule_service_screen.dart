@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lbc_harbor_connect/services/database_service.dart';
 import 'package:uuid/uuid.dart';
 import 'settings_screens.dart';
@@ -374,40 +375,66 @@ class _ScheduleServiceScreenState extends ConsumerState<ScheduleServiceScreen> {
               if (_selectedDay != null) ...[
                 const Divider(),
                 const SizedBox(height: 10),
-                Text("Required Positions", style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 10),
                 positionsAsync.when(
                   data: (positions) {
                     final filteredPositions = positions
                         .where((p) => _selectedServiceType!.positionGuids.contains(p.guid))
                         .toList();
 
-                    if (filteredPositions.isEmpty) {
-                      return const Text("No positions defined for this service type.");
-                    }
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text("Required Positions", style: Theme.of(context).textTheme.titleMedium),
+                            TextButton(
+                              onPressed: () {
+                                final buffer = StringBuffer();
+                                buffer.writeln("Service: ${_selectedServiceType?.serviceName ?? ''}");
+                                buffer.writeln("Date: ${_months[_selectedMonth! - 1]} $_selectedDay, $_selectedYear");
+                                buffer.writeln("");
+                                buffer.writeln("Positions & Assignments:");
+                                for (var pos in filteredPositions) {
+                                  final assignedMember = _assignedMembers[pos.guid];
+                                  final memberName = assignedMember != null
+                                      ? "${assignedMember.firstName} ${assignedMember.lastName}"
+                                      : "Unassigned";
+                                  buffer.writeln("- ${pos.positionName}: $memberName");
+                                }
+                                context.push('/print-schedule', extra: buffer.toString());
+                              },
+                              child: const Text("Print Schedule"),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        filteredPositions.isEmpty
+                            ? const Text("No positions defined for this service type.")
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: filteredPositions.length,
+                                itemBuilder: (context, index) {
+                                  final pos = filteredPositions[index];
+                                  final assignedMember = _assignedMembers[pos.guid];
 
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: filteredPositions.length,
-                      itemBuilder: (context, index) {
-                        final pos = filteredPositions[index];
-                        final assignedMember = _assignedMembers[pos.guid];
-
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          child: ListTile(
-                            title: Text(pos.positionName),
-                            subtitle: Text(assignedMember != null
-                                ? "Assigned: ${assignedMember.firstName} ${assignedMember.lastName}"
-                                : "Team: ${pos.team}"),
-                            trailing: assignedMember != null
-                                ? const Icon(Icons.check_circle, color: Colors.green)
-                                : const Icon(Icons.person_add_outlined),
-                            onTap: () => _showMemberSelectionDialog(pos),
-                          ),
-                        );
-                      },
+                                  return Card(
+                                    margin: const EdgeInsets.symmetric(vertical: 4),
+                                    child: ListTile(
+                                      title: Text(pos.positionName),
+                                      subtitle: Text(assignedMember != null
+                                          ? "Assigned: ${assignedMember.firstName} ${assignedMember.lastName}"
+                                          : "Team: ${pos.team}"),
+                                      trailing: assignedMember != null
+                                          ? const Icon(Icons.check_circle, color: Colors.green)
+                                          : const Icon(Icons.person_add_outlined),
+                                      onTap: () => _showMemberSelectionDialog(pos),
+                                    ),
+                                  );
+                                },
+                              ),
+                      ],
                     );
                   },
                   loading: () => const Center(child: CircularProgressIndicator()),
